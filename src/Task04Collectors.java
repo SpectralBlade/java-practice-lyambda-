@@ -1,4 +1,7 @@
+import java.util.IntSummaryStatistics;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  Задание 4. Collectors и логи сервиса.
@@ -38,6 +41,32 @@ public class Task04Collectors {
             new LogLine("INFO", "search", 75));
 
     public static void main(String[] args) {
+        Map<String, Long> counts = LOG.stream()
+                .collect(Collectors.groupingBy(LogLine::service, Collectors.counting()));
+        Map<String, Integer> sums = LOG.stream()
+                .collect(Collectors.groupingBy(LogLine::service, Collectors.summingInt(LogLine::ms)));
+        Map<Boolean, Long> bySpeed = LOG.stream()
+                .collect(Collectors.partitioningBy(log -> log.ms() > 500, Collectors.counting()));
+        Map<String, Integer> maximums = LOG.stream()
+                .collect(Collectors.groupingBy(LogLine::service,
+                        Collectors.mapping(LogLine::ms, Collectors.reducing(0, Integer::max))));
+        String errorServices = LOG.stream()
+                .filter(log -> log.level().equals("ERROR"))
+                .map(LogLine::service)
+                .distinct()
+                .collect(Collectors.joining(" | "));
+        Map<String, List<Integer>> measurements = LOG.stream()
+                .collect(Collectors.groupingBy(LogLine::service,
+                        Collectors.mapping(LogLine::ms, Collectors.toList())));
+        IntSummaryStatistics total = LOG.stream()
+                .collect(Collectors.summarizingInt(LogLine::ms));
 
+        System.out.println("записей по сервисам: " + counts);
+        System.out.println("сумма мс по сервисам: " + sums);
+        System.out.println("медленных " + bySpeed.get(true) + ", быстрых " + bySpeed.get(false));
+        System.out.println("максимум мс по сервисам: " + maximums);
+        System.out.println("сервисы с ошибками: " + errorServices);
+        System.out.println("замеры по сервисам: " + measurements);
+        System.out.println("всего мс/записей: " + total.getSum() + "/" + total.getCount());
     }
 }
