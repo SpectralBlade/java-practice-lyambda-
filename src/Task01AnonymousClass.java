@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -13,7 +14,7 @@ public class Task01AnonymousClass {
     public static void main(String[] args) {
         List<String> words = new ArrayList<>(List.of("lambda", "java", "stream", "api"));
 
-        words.sort((a, b) -> a.length() - b.length());
+        words.sort(Comparator.comparingInt(String::length));
         System.out.println(words);
 
         words.removeIf(s -> s.length() > 5);
