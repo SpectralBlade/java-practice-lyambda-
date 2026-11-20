@@ -64,7 +64,14 @@ public class Task06Optional {
         return Optional.ofNullable(room)
                 .flatMap(Room::getSensor)
                 .flatMap(Sensor::getTemperature)
-                .map(temperature -> temperature > 25.0)
+                .map(temperature -> Optional.of(temperature)
+                        .filter(value -> value <= 25.0)
+                        .map(value -> {
+                            System.out.println("Продолжаем подачу энергии");
+                            return false;
+                        })
+                        .orElseThrow(() ->
+                                new IllegalStateException("Температура превышена")))
                 .orElse(false);
     }
 
